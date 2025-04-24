@@ -55,7 +55,9 @@ const lessonTitle = document.getElementsByClassName('text-block-14')[0]
 lessonTitle.innerHTML = localStorage.getItem('title')
 
 // Document Editor
+/*
 const lessonDocContainer = document.getElementsByClassName('div-block-10')[0]
+var lessonDocs = []
 const lessonDoc = document.getElementsByClassName('lesson-doc')[0]
 const uploadImg = document.getElementsByClassName('upload-img')[0]
 const fileGet = document.getElementsByClassName('file')[0]
@@ -86,23 +88,86 @@ lessonDoc.addEventListener('drop', (e) => {
     }
 })
 
-const imageLayer = document.getElementsByClassName('image-layer')[0]
+const content = document.getElementsByClassName('content')[0]
+var imageLayers = []
 
 function insertImages(images) {
-    console.log('hi')
     for (let i = 0; i < images.length; i++) {
         let img = document.createElement('img')
         img.setAttribute('src', URL.createObjectURL(images[i]))
 
-        imageLayer.appendChild(img)
+        let imgDiv = document.createElement('div')
+        imgDiv.setAttribute('class', 'image-layer')
+
+        imageLayers.push(imgDiv)
+        content.appendChild(imgDiv)
+        imgDiv.appendChild(img)
     }
 }
 
 // Change system
-lessonDoc.addEventListener('keydown', (e) => {
-    if (e.key == "Backspace") {
-        imageLayer.innerHTML = imageLayer.innerHTML.slice(0,imageLayer.innerHTML.length)
-    } else {
-        imageLayer.innerHTML += e.key
+*/
+
+const content = document.getElementsByClassName('content')[0]
+var layers = []
+
+function newTextArea() {
+    let area = document.createElement('textarea')
+    area.setAttribute('class', 'lesson-doc')
+
+    area.addEventListener('click', () => {
+        area.focus()
+    })
+
+    area.addEventListener('change', () => {
+        area.style.height = 'auto'
+    })
+
+    layers.push(area)
+    content.appendChild(area)
+}
+
+newTextArea()
+
+function newImage(image) {
+    //try {
+        const lastLayer = layers[layers.length - 1]
+        
+        if (lastLayer.className == 'lesson-doc') {
+            if (lastLayer.value == "") {
+                layers.splice(layers.length - 1, 1)
+                //content.removeChild([...content.children][layers.length - 1])
+                content.lastElementChild.remove()
+            }
+        }
+    //} catch {
+
+    //}
+
+    ///
+
+    let imgContainer = document.createElement('div')
+    imgContainer.setAttribute('class', 'image-layer')
+
+    let imageHold = document.createElement('img')
+    imageHold.setAttribute('src', URL.createObjectURL(image))
+
+    imgContainer.appendChild(imageHold)
+
+    layers.push(imgContainer)
+    content.appendChild(imgContainer)
+
+    newTextArea()
+    layers[layers.length - 1].focus()
+}
+
+const uploadImg = document.getElementsByClassName('upload-img')[0]
+const fileGet = document.getElementsByClassName('file')[0]
+
+uploadImg.addEventListener('change', () => {
+    let images = fileGet.files
+
+    for (let i = 0; i < images.length; i++) {
+        newImage(images[i])
     }
 })
