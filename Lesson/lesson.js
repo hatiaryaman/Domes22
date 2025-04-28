@@ -55,96 +55,46 @@ const lessonTitle = document.getElementsByClassName('text-block-14')[0]
 lessonTitle.innerHTML = localStorage.getItem('title')
 
 // Document Editor
-/*
-const lessonDocContainer = document.getElementsByClassName('div-block-10')[0]
-var lessonDocs = []
-const lessonDoc = document.getElementsByClassName('lesson-doc')[0]
-const uploadImg = document.getElementsByClassName('upload-img')[0]
-const fileGet = document.getElementsByClassName('file')[0]
-
-lessonDocContainer.addEventListener('click', function() {
-    lessonDoc.focus()
-})
-
-uploadImg.addEventListener('change', () => {
-    let img = fileGet.files
-    let images = []
-
-    for (let i = 0; i < img.length; i++) {
-        images.push(img[i])
-    }
-
-    insertImages(images)
-})
-
-lessonDoc.addEventListener('drop', (e) => {
-    e.preventDefault()
-
-    let img = e.dataTransfer.files
-    let images = []
-
-    for (let i = 0; i < img.length; i++) {
-        images.push(img[i])
-    }
-})
-
-const content = document.getElementsByClassName('content')[0]
-var imageLayers = []
-
-function insertImages(images) {
-    for (let i = 0; i < images.length; i++) {
-        let img = document.createElement('img')
-        img.setAttribute('src', URL.createObjectURL(images[i]))
-
-        let imgDiv = document.createElement('div')
-        imgDiv.setAttribute('class', 'image-layer')
-
-        imageLayers.push(imgDiv)
-        content.appendChild(imgDiv)
-        imgDiv.appendChild(img)
-    }
-}
-
 // Change system
-*/
 
 const content = document.getElementsByClassName('content')[0]
-var layers = []
+content.addEventListener('click', () => {
+    layers[layers.length - 1].focus()
+})
+
+var layers = new Map()
+var currentI = -1
 
 function newTextArea() {
-    let area = document.createElement('textarea')
+    let area = document.createElement('p')
+    area.contentEditable = true
     area.setAttribute('class', 'lesson-doc')
 
-    area.addEventListener('click', () => {
-        area.focus()
-    })
+    area.focus()
 
-    area.addEventListener('change', () => {
-        area.style.height = 'auto'
-    })
+    layers.set(area, currentI + 1)
+    currentI += 1
 
-    layers.push(area)
-    content.appendChild(area)
+    if (currentI == layers.size - 1) {
+        content.appendChild(area)
+    } else {
+        content.insertBefore(area, [...content.children][currentI + 1])
+    }
+
+    for (let i = 0; i < layers.size; i++) {
+        let childs = [...content.children]
+        if (layers[childs[i]] >= currentI) {
+            if (childs[i] == area) {
+                layers[childs[i]] += 1
+            }
+        }
+    }
 }
 
 newTextArea()
 
 function newImage(image) {
-    //try {
-        const lastLayer = layers[layers.length - 1]
-        
-        if (lastLayer.className == 'lesson-doc') {
-            if (lastLayer.value == "") {
-                layers.splice(layers.length - 1, 1)
-                //content.removeChild([...content.children][layers.length - 1])
-                content.lastElementChild.remove()
-            }
-        }
-    //} catch {
-
-    //}
-
-    ///
+    //removeBlank()
 
     let imgContainer = document.createElement('div')
     imgContainer.setAttribute('class', 'image-layer')
@@ -154,11 +104,25 @@ function newImage(image) {
 
     imgContainer.appendChild(imageHold)
 
-    layers.push(imgContainer)
-    content.appendChild(imgContainer)
+    layers.set(imgContainer, currentI + 1)
+    currentI += 1
+
+    if (currentI == layers.size - 1) {
+        content.appendChild(area)
+    } else {
+        content.insertBefore(area, [...content.children][currentI + 1])
+    }
+
+    for (let i = 0; i < layers.size; i++) {
+        let childs = [...content.children]
+        if (layers[childs[i]] >= currentI) {
+            if (childs[i] == area) {
+                layers[childs[i]] += 1
+            }
+        }
+    }
 
     newTextArea()
-    layers[layers.length - 1].focus()
 }
 
 const uploadImg = document.getElementsByClassName('upload-img')[0]
@@ -171,3 +135,14 @@ uploadImg.addEventListener('change', () => {
         newImage(images[i])
     }
 })
+
+function removeBlank() {
+    const currentText = layers[layers.length - 1]
+    
+    if (currentText.className == 'lesson-doc') {
+        if (currentText.textContent == "") {
+            layers.splice(layers.length, 1)
+            content.removeChild(currentText)
+        }
+    }
+}
